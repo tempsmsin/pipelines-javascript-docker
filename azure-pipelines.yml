@@ -13,26 +13,19 @@ variables:
 
 stages:
 - stage: Build
-  displayName: Build image
+  displayName: Build and push stage
   jobs:  
   - job: Build
-    displayName: Build
+    displayName: Build job
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: $(vmImageName)
     steps:
     - task: Docker@2
-      displayName: Build an image
+      displayName: Build and push an image to container registry
       inputs:
-        command: build
-        dockerfile: '**/Dockerfile'
-        |
-          
-    - task: Kubernetes@1
-      inputs:
-        connectionType: 'Azure Resource Manager'
-        azureSubscriptionEndpoint: 'Free Trial(b1fe82c5-433c-4eac-a32a-b3cb3b96081a)'
-        azureResourceGroup: 'mydummyresource'
-        kubernetesCluster: 'MyClusterkube'
-        command: 
-        secretType: 'dockerRegistry'
-        containerRegistryType: 'Azure Container Registry'
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
